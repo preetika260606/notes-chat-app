@@ -8,7 +8,8 @@ export default defineSchema({
     userId: v.string(),
     isArchived: v.boolean(),
     isPublished: v.boolean(),
-    createdAt: v.optional(v.number()), // ✅ IMPORTANT FIX
+    createdAt: v.optional(v.number()),
+    icon: v.optional(v.string()),
   })
     .index("by_user_parent", ["userId", "parentDocument"]),
 });
