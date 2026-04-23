@@ -6,7 +6,8 @@ import { ModalProvider } from "@/components/providers/modal-provider";
 import { ConvexClientProvider } from "@/components/providers/convex-provider";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
+import { EdgeStoreProvider } from "@/lib/edgestore";
+import { UploaderProviderWrapper } from "@/components/providers/uploader-provider-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,17 +51,24 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <ConvexClientProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-            storageKey="jotion-theme-2"
-          >
-            <Toaster position="bottom-center"/>
-            <ModalProvider/>
-            {children}
-          </ThemeProvider>
+          <EdgeStoreProvider>
+            <UploaderProviderWrapper>
+              {" "}
+              {/* ✅ ADD THIS */}
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+                storageKey="jotion-theme-2"
+              >
+                <Toaster position="bottom-center" />
+                <ModalProvider />
+                {children}
+              </ThemeProvider>
+            </UploaderProviderWrapper>{" "}
+            {/* ✅ */}
+          </EdgeStoreProvider>
         </ConvexClientProvider>
       </body>
     </html>

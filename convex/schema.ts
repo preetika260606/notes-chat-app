@@ -10,6 +10,7 @@ export default defineSchema({
     isPublished: v.boolean(),
     createdAt: v.optional(v.number()),
     icon: v.optional(v.string()),
+    coverImage: v.optional(v.string()),
   })
     .index("by_user_parent", ["userId", "parentDocument"]),
 });
