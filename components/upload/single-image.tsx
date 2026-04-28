@@ -39,8 +39,8 @@ export const SingleImageDropzone = ({
           },
         });
 
-        setFileUrl(res.url);
-        onUploadComplete?.(res.url);
+        setFileUrl(res);
+        onUploadComplete?.(res);
       } catch (err) {
         console.error(err);
       } finally {

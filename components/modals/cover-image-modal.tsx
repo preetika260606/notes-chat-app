@@ -29,23 +29,7 @@ export const CoverImageModal = () => {
     coverImage.onClose();
   };
 
-  const onChange = async (file?: File) => {
-    if (file) {
-      setIsSubmitting(true);
-
-      const res = await edgestore.publicImages.upload({
-        file,
-      });
-
-      await update({
-        id: params.documentId as Id<"documents">,
-        coverImage: res.url,
-      });
-
-      onClose();
-    }
-  };
-
+/////
   return (
     <Dialog open={coverImage.isOpen} onOpenChange={coverImage.onClose}>
       <DialogContent>

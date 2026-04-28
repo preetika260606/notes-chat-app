@@ -22,6 +22,7 @@ export const Cover = ({
     const params = useParams();
     const coverImage = useCoverImage();
     const removeCoverImage = useMutation(api.documents.removeCoverImage);
+    console.log("COVER URL:", url);
 
     const onRemove = () =>{
         removeCoverImage({id: params.documentId as Id<"documents">});
@@ -32,11 +33,10 @@ export const Cover = ({
             url && "bg-muted"
         )}>
             {!!url && (
-                <Image
-                    src={url}
-                    fill
-                    alt="Cover"
-                    className="object-cover"
+                <img
+                src={url}
+                alt="Cover"
+                className="w-full h-full object-cover"
                 />
             )} 
             {url && !preview && (

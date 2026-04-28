@@ -22,7 +22,7 @@ export function SingleImageDropzoneUsage() {
       });
 
       console.log(res);
-      return res;
+      return res.url;
     },
     [edgestore]
   );

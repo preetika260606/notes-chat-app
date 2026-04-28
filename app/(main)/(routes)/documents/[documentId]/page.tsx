@@ -13,6 +13,8 @@ const DocumentId = () => {
     const document = useQuery(api.documents.getById, {
         documentId: params.documentId as Id<"documents">,
     });
+    console.log("DOCUMENT:", document);
+    console.log("COVER IMAGE:", document?.coverImage);
 
     if (document === undefined) {
         return <div>Loading...</div>;
