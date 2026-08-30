@@ -116,6 +116,72 @@ body,
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+/* Tiptap Editor */
+
+.editor-content .ProseMirror {
+  min-height: 500px;
+  outline: none;
+}
+
+.editor-content .ProseMirror p {
+  margin-bottom: 1rem;
+}
+
+.editor-content .ProseMirror h1 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+.editor-content .ProseMirror h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.editor-content .ProseMirror ul {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.editor-content .ProseMirror ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.editor-content .ProseMirror blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid currentColor;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.editor-content .ProseMirror pre {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: #f4f4f5;
+}
+
+.dark .editor-content .ProseMirror pre {
+  background: #27272a;
+}
+
+.editor-content .ProseMirror code {
+  padding: 0.15rem 0.3rem;
+  border-radius: 0.25rem;
+  background: #f4f4f5;
+}
+
+.dark .editor-content .ProseMirror code {
+  background: #27272a;
+}
 
 @layer base {
   * {

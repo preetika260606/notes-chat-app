@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 
-
 // ======================
 // ARCHIVE
 // ======================
@@ -87,6 +86,7 @@ export const create = mutation({
       userId,
       isArchived: false,
       isPublished: false,
+      isFavorite: false,
       createdAt: Date.now(),
     });
 
@@ -161,15 +161,14 @@ export const restore = mutation({
     }
 
     const document = await ctx.db.patch(args.id, options);
-
-    recursiveRestore(args.id);
-
+    await recursiveRestore(args.id);
     return document;
   },
 });
 
 export const remove = mutation({
   args: { id: v.id("documents") },
+
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
 
@@ -214,34 +213,38 @@ export const getSearch = query({
 });
 
 export const getById = query({
-  args: { documentId: v.id("documents") },
+  args: {
+    documentId: v.id("documents"),
+  },
+
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
 
+    console.log("REQUESTED ID:", args.documentId);
+    console.log("CURRENT USER:", identity?.subject);
+
     const document = await ctx.db.get(args.documentId);
 
-    // ✅ Fix 1: don't throw
+    console.log("DOCUMENT:", document);
+
     if (!document) {
+      console.log("❌ DOCUMENT NOT FOUND");
       return null;
     }
 
-    // ✅ Public access (if published)
-    if (document.isPublished && !document.isArchived) {
-      return document;
-    }
+    console.log("DOCUMENT USER:", document.userId);
 
-    // ✅ If private → must be logged in
     if (!identity) {
+      console.log("❌ NO AUTHENTICATED USER");
       return null;
     }
 
-    const userId = identity.subject;
-
-    // ✅ If not owner → don't crash
-    if (document.userId !== userId) {
+    if (document.userId !== identity.subject) {
+      console.log("❌ USER ID MISMATCH");
       return null;
     }
 
+    console.log("✅ ACCESS GRANTED");
     return document;
   },
 });
@@ -279,46 +282,110 @@ export const update = mutation({
     return document;
   },
 });
- export const removeIcon = mutation({
-  args:{id:v.id("documents")},
-  handler:async (ctx,args) =>{
+export const removeIcon = mutation({
+  args: { id: v.id("documents") },
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if(!identity) {
-      throw new Error ("Unauthenticated");
+    if (!identity) {
+      throw new Error("Unauthenticated");
     }
 
     const userId = identity.subject;
-    const existingDocument =await ctx.db.get(args.id);
+    const existingDocument = await ctx.db.get(args.id);
 
-    if(!existingDocument) {
+    if (!existingDocument) {
       throw new Error("Not found");
     }
-    if(existingDocument.userId !== userId) {
+    if (existingDocument.userId !== userId) {
       throw new Error("Unauthorized");
     }
-    const document = await ctx.db.patch(args.id,{icon:undefined});
-    return document
-  }
- });
+    const document = await ctx.db.patch(args.id, { icon: undefined });
+    return document;
+  },
+});
 
- export const removeCoverImage = mutation({
-  args: {id: v.id("documents")},
-  handler:async (ctx,args) => {
+export const removeCoverImage = mutation({
+  args: { id: v.id("documents") },
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
-    if(!identity) {
-      throw new Error ("Unauthenticated");
+    if (!identity) {
+      throw new Error("Unauthenticated");
     }
 
     const userId = identity.subject;
-    const existingDocument =await ctx.db.get(args.id);
+    const existingDocument = await ctx.db.get(args.id);
 
-    if(!existingDocument) {
+    if (!existingDocument) {
       throw new Error("Not found");
     }
-    if(existingDocument.userId !== userId) {
+    if (existingDocument.userId !== userId) {
       throw new Error("Unauthorized");
     }
-    const document = await ctx.db.patch(args.id,{coverImage:undefined});
-    return document
-  }
- })
+    const document = await ctx.db.patch(args.id, { coverImage: undefined });
+    return document;
+  },
+});
+
+// TOGGLE FAVORITE
+
+export const toggleFavorite = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const userId = identity.subject;
+
+    const existingDocument = await ctx.db.get(args.id);
+
+    if (!existingDocument) {
+      throw new Error("Not found");
+    }
+
+    if (existingDocument.userId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const document = await ctx.db.patch(args.id, {
+      isFavorite: !existingDocument.isFavorite,
+    });
+
+    return document;
+  },
+});
+
+// GET FAVORITES
+
+export const getFavorites = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+
+    const documents = await ctx.db
+      .query("documents")
+      .withIndex("by_user_parent", (q) =>
+        q.eq("userId", userId)
+      )
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("isArchived"), false),
+          q.eq(q.field("isFavorite"), true)
+        )
+      )
+      .order("desc")
+      .collect();
+
+    return documents;
+  },
+});

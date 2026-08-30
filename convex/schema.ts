@@ -4,13 +4,31 @@ import { v } from "convex/values";
 export default defineSchema({
   documents: defineTable({
     title: v.string(),
-    parentDocument: v.union(v.id("documents"), v.null()),
+
+    parentDocument: v.union(
+      v.id("documents"),
+      v.null()
+    ),
+
     userId: v.string(),
+
     isArchived: v.boolean(),
+
     isPublished: v.boolean(),
+
+    isFavorite: v.optional(v.boolean()),
+
+    // Editor content
+    content: v.optional(v.string()),
+
     createdAt: v.optional(v.number()),
+
     icon: v.optional(v.string()),
+
     coverImage: v.optional(v.string()),
   })
-    .index("by_user_parent", ["userId", "parentDocument"]),
+    .index("by_user_parent", [
+      "userId",
+      "parentDocument",
+    ]),
 });

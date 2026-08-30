@@ -10,7 +10,7 @@ import { Cover } from "@/components/cover";
 import { Toolbar } from "@/components/toolbar";
 import { Editor } from "@/components/editor";
 
-const DocumentIdPage = () => {
+const PreviewPage = () => {
   const params = useParams();
 
   const document = useQuery(api.documents.getById, {
@@ -21,24 +21,25 @@ const DocumentIdPage = () => {
     return <div className="p-10">Loading...</div>;
   }
 
-  if (document === null) {
+  if (document === null || !document.isPublished) {
     return <div className="p-10">This note is not available.</div>;
   }
 
   return (
     <div className="pb-40">
-      <Cover url={document.coverImage} />
+      <Cover preview url={document.coverImage} />
 
       <div className="md:max-w-3xl lg:max-w-4xl mx-auto">
-        <Toolbar initialData={document} />
+        <Toolbar initialData={document} preview />
 
         <Editor
           initialContent={document.content}
           documentId={document._id}
+          preview
         />
       </div>
     </div>
   );
 };
 
-export default DocumentIdPage;
+export default PreviewPage;

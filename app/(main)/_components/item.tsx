@@ -7,6 +7,7 @@ import {
   Plus,
   MoreHorizontal,
   Trash,
+  Star,
 } from "lucide-react";
 import { useMutation } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
@@ -29,6 +30,7 @@ interface ItemProps {
   label: string;
   id?: Id<"documents">;
   documentIcon?: string;
+  isFavorite?: boolean;
   active?: boolean;
   expanded?: boolean;
   isSearch?: boolean;
@@ -49,38 +51,48 @@ export const Item = ({
   level = 0,
   onExpand,
   expanded,
+  isFavorite,
 }: ItemProps) => {
   const { user } = useUser();
   const router = useRouter();
 
   const create = useMutation(api.documents.create);
   const archive = useMutation(api.documents.archive);
+  const toggleFavorite = useMutation(api.documents.toggleFavorite);
 
-
-  const onArchive = (
-    event:React.MouseEvent<HTMLDivElement,MouseEvent>
-  ) => {
+  const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
-    if(!id) return;
-    const promise = archive({id});
+    if (!id) return;
+    const promise = archive({ id });
 
-    toast.promise(promise,{
-      loading:"Moving to trash...",
-      success:"Note moved to trash!",
-      error:"Failed to archive note."
+    toast.promise(promise, {
+      loading: "Moving to trash...",
+      success: "Note moved to trash!",
+      error: "Failed to archive note.",
     });
-  }
+  };
+
+  const onFavorite = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    event.stopPropagation();
+
+    if (!id) return;
+
+    const promise = toggleFavorite({ id });
+
+    toast.promise(promise, {
+      loading: "Updating favorite...",
+      success: "Favorite updated!",
+      error: "Failed to update favorite.",
+    });
+  };
   const handleExpand = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     event.stopPropagation();
     onExpand?.();
   };
 
-
-  const onCreate = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
+  const onCreate = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     if (!id) return;
 
@@ -101,9 +113,7 @@ export const Item = ({
     });
   };
 
-  const onDelete = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
+  const onDelete = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     if (!id) return;
 
@@ -127,7 +137,7 @@ export const Item = ({
       }}
       className={cn(
         "group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium cursor-pointer",
-        active && "bg-primary/5 text-primary"
+        active && "bg-primary/5 text-primary",
       )}
     >
       {!!id && (
@@ -141,9 +151,7 @@ export const Item = ({
       )}
 
       {documentIcon ? (
-        <div className="shrink-0 mr-2 text-[18px]">
-          {documentIcon}
-        </div>
+        <div className="shrink-0 mr-2 text-[18px]">{documentIcon}</div>
       ) : (
         <Icon className="shrink-0 h-[18px] mr-2 text-muted-foreground" />
       )}
@@ -158,12 +166,24 @@ export const Item = ({
 
       {!!id && (
         <div className="ml-auto flex items-center gap-x-2">
+          {/* ⭐ Favorite */}
+          <div
+            role="button"
+            onClick={onFavorite}
+            className="opacity-0 group-hover:opacity-100 h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          >
+            <Star
+              className={`h-4 w-4 ${
+                isFavorite
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-muted-foreground"
+              }`}
+            />
+          </div>
           {/* Dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger
-              onClick={(e) => e.stopPropagation()}
-              asChild
-            >
+            <DropdownMenuTrigger onClick={(e) => e.stopPropagation()} asChild>
               <div
                 role="button"
                 className="opacity-0 group-hover:opacity-100 h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"

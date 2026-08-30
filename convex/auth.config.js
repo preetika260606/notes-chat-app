@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://premium-crawdad-3.clerk.accounts.dev",
+      domain: "https://brief-beetle-87.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],

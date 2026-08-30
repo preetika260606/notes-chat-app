@@ -3,12 +3,14 @@ import { useMutation } from "convex/react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { IconPicker } from "./icon-picker";
 import { Button } from "@/components/./ui/button";
-import { ImageIcon, Smile, X } from "lucide-react";
+import { ImageIcon, Smile, X, Share2, Copy } from "lucide-react";
 import { useCoverImage } from "@/hooks/use-cover-image";
 import { ElementRef, useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import TextareaAutosize from "react-textarea-autosize";
 import { useQuery } from "convex/react";
+import { Star } from "lucide-react";
+import { toast } from "sonner";
 interface ToolbarProps {
   initialData: Doc<"documents">;
   preview?: boolean;
@@ -21,9 +23,23 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
   const update = useMutation(api.documents.update);
   const removeIcon = useMutation(api.documents.removeIcon);
   const coverImage = useCoverImage();
+  const toggleFavorite = useMutation(api.documents.toggleFavorite);
+  const onPublish = () => {
+    update({
+      id: initialData._id,
+      isPublished: !initialData.isPublished,
+    });
+  };
+  const onCopyLink = () => {
+    const url = `${window.location.origin}/preview/${initialData._id}`;
+
+    navigator.clipboard.writeText(url);
+
+    toast.success("Public link copied!");
+  };
   const document = useQuery(api.documents.getById, {
-  documentId: initialData._id,
-});
+    documentId: initialData._id,
+  });
   const enableInput = () => {
     if (preview) return;
 
@@ -50,7 +66,7 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
     }
   };
 
-  const onIconSelect = (icon:string) =>{
+  const onIconSelect = (icon: string) => {
     console.log("Selected icon:", icon);
     update({
       id: initialData._id,
@@ -58,13 +74,32 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
     });
   };
 
-  const onRemoveIcon = () =>{
+  const onRemoveIcon = () => {
     removeIcon({
       id: initialData._id,
     });
-  }
+  };
   return (
     <div className="pl-[54px] group relative">
+      {!preview && (
+        <div className="flex justify-end gap-2 pt-4">
+          {initialData.isPublished && (
+            <Button onClick={onCopyLink} variant="outline" size="sm">
+              <Copy className="h-4 w-4 mr-2" />
+              Copy link
+            </Button>
+          )}
+
+          <Button
+            onClick={onPublish}
+            variant={initialData.isPublished ? "outline" : "default"}
+            size="sm"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            {initialData.isPublished ? "Unpublish" : "Publish"}
+          </Button>
+        </div>
+      )}
       {!!document?.icon && !preview && (
         <div className="flex items-center gap-x-2 group/icon pt-6">
           <IconPicker onChange={onIconSelect}>
@@ -80,6 +115,24 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
           >
             <X className="h-4 w-4" />
           </Button>
+
+          <button
+            onClick={() => toggleFavorite({ id: initialData._id })}
+            className="p-2 hover:bg-muted rounded-md transition"
+            title={
+              initialData.isFavorite
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
+          >
+            <Star
+              className={`h-5 w-5 ${
+                initialData.isFavorite
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-muted-foreground"
+              }`}
+            />
+          </button>
         </div>
       )}
       {!!initialData.icon && preview && (
