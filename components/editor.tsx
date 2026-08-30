@@ -126,7 +126,7 @@ export const Editor = ({
     const content = initialContent ?? "";
 
     if (editor.getHTML() !== content) {
-      editor.commands.setContent(content, false);
+      editor.commands.setContent(content);
       updateCounts(editor);
     }
   }, [editor, initialContent]);
