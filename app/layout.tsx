@@ -8,6 +8,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { UploaderProviderWrapper } from "@/components/providers/uploader-provider-wrapper";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,26 +51,25 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="antialiased">
-        <ConvexClientProvider>
-          <EdgeStoreProvider>
-            <UploaderProviderWrapper>
-              {" "}
-              {/* ✅ ADD THIS */}
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-                storageKey="jotion-theme-2"
-              >
-                <Toaster position="bottom-center" />
-                <ModalProvider />
-                {children}
-              </ThemeProvider>
-            </UploaderProviderWrapper>{" "}
-            {/* ✅ */}
-          </EdgeStoreProvider>
-        </ConvexClientProvider>
+        <ClerkProvider>
+          <ConvexClientProvider>
+            <EdgeStoreProvider>
+              <UploaderProviderWrapper>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                  storageKey="jotion-theme-2"
+                >
+                  <Toaster position="bottom-center" />
+                  <ModalProvider />
+                  {children}
+                </ThemeProvider>
+              </UploaderProviderWrapper>
+            </EdgeStoreProvider>
+          </ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
