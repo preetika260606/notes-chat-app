@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { File } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/clerk-react";
-
 import {
   CommandDialog,
   CommandEmpty,
@@ -44,10 +43,6 @@ export const SearchCommand = () => {
     return () => document.removeEventListener("keydown", down);
   }, [toggle]);
 
-  const handleSelect = (id: string) => {
-    router.push(`/documents/${id}`);
-    onClose();
-  };
 
   const onSelect = (id: string) => {
     router.push(`/documents/${id}`);
